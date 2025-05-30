@@ -98,6 +98,49 @@
             display: none;
         }
         
+        .file-info {
+            background: #e8f5e8;
+            border: 2px solid #4caf50;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .file-name {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .change-file-btn {
+            flex: 1;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .reset-btn {
+            flex: 1;
+            background: #666;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
         .settings {
             background: #f8f9fa;
             border-radius: 15px;
@@ -229,6 +272,18 @@
             cursor: pointer;
         }
         
+        .new-song-btn {
+            width: 100%;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 15px 0 10px 0;
+        }
+        
         .footer {
             text-align: center;
             margin-top: 30px;
@@ -260,11 +315,21 @@
             <div class="subtitle">어디서든 노래하고, 바로 프로급 완성!</div>
         </div>
         
-        <div class="upload-section" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-section" id="uploadSection" onclick="selectFile()">
             <div class="upload-icon">🎵</div>
             <div class="upload-text">노래 파일을 업로드하세요</div>
             <div class="upload-hint">코인노래방, 집, 어디서든 녹음한 파일을 AI가 프로급으로!</div>
             <input type="file" id="fileInput" class="file-input" accept="audio/*">
+        </div>
+        
+        <div class="file-info" id="fileInfo">
+            <div class="upload-icon">✅</div>
+            <div class="file-name" id="fileName"></div>
+            <div class="upload-hint">준비 완료! 아래 버튼을 눌러 시작하세요</div>
+            <div class="file-actions">
+                <button class="change-file-btn" onclick="selectFile()">📁 다른 파일 선택</button>
+                <button class="reset-btn" onclick="resetAll()">🔄 처음부터</button>
+            </div>
         </div>
         
         <div class="settings">
@@ -304,6 +369,7 @@
             <div>보정 후:</div>
             <audio class="audio-player" id="processedAudio" controls></audio>
             <button class="download-btn" id="downloadBtn">📱 완성된 파일 저장</button>
+            <button class="new-song-btn" onclick="resetAll()">🎵 다른 노래 테스트하기</button>
             <div class="share-buttons">
                 <button class="share-btn">🔗 카톡 공유</button>
                 <button class="share-btn">📱 인스타 스토리</button>
@@ -341,22 +407,49 @@
             }
         });
         
-        // 파일 업로드 처리
+        // 요소들
         const fileInput = document.getElementById('fileInput');
         const processBtn = document.getElementById('processBtn');
         const progress = document.getElementById('progress');
         const result = document.getElementById('result');
-        const uploadSection = document.querySelector('.upload-section');
+        const uploadSection = document.getElementById('uploadSection');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
         
+        // 파일 선택 함수
+        function selectFile() {
+            fileInput.click();
+        }
+        
+        // 모든 것 리셋
+        function resetAll() {
+            // 파일 입력 리셋
+            fileInput.value = '';
+            
+            // UI 리셋
+            uploadSection.style.display = 'block';
+            fileInfo.style.display = 'none';
+            processBtn.style.display = 'none';
+            progress.style.display = 'none';
+            result.style.display = 'none';
+            
+            // 진행률 리셋
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressText').textContent = '처리 중...';
+            
+            // 버튼 활성화
+            processBtn.disabled = false;
+        }
+        
+        // 파일 업로드 처리
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
+                fileName.textContent = file.name;
+                uploadSection.style.display = 'none';
+                fileInfo.style.display = 'block';
                 processBtn.style.display = 'block';
-                uploadSection.innerHTML = `
-                    <div class="upload-icon">✅</div>
-                    <div class="upload-text">${file.name}</div>
-                    <div class="upload-hint">준비 완료! 아래 버튼을 눌러 시작하세요</div>
-                `;
+                result.style.display = 'none'; // 이전 결과 숨기기
             }
         });
         
@@ -380,7 +473,7 @@
             }
         });
         
-        // AI 처리 시뮬레이션 (실제로는 서버 API 호출)
+        // AI 처리 시뮬레이션
         processBtn.addEventListener('click', async () => {
             const file = fileInput.files[0];
             if (!file) return;
