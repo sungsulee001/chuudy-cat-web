@@ -1,0 +1,27 @@
+{
+  "name": "뚱냥이 AI 음원 보정",
+  "short_name": "뚱냥이",
+  "description": "어디서든 노래하고, 바로 프로급 완성! AI 음원 보정 앱",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff6b6b",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "ko",
+  "categories": ["music", "entertainment", "utilities"],
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+} 

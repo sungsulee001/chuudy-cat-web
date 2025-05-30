@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ff6b6b">
+    <title>🐱 뚱냥이 - 어디서든 프로급 노래!</title>
+    
+    <!-- PWA 설정 -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="뚱냥이">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+        
+        .title {
+            color: #ff6b6b;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .upload-section {
+            border: 3px dashed #ff6b6b;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            margin: 30px 0;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.2);
+        }
+        
+        .upload-section.dragover {
+            background: linear-gradient(135deg, #ffe5e5 0%, #ffcccc 100%);
+            border-color: #ee5a52;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .upload-hint {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .settings {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .settings h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .setting-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .setting-col {
+            flex: 1;
+        }
+        
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+        
+        .process-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            display: none;
+        }
+        
+        .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+        }
+        
+        .process-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .progress {
+            display: none;
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ee5a52);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+        }
+        
+        .result {
+            display: none;
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4e8d4 100%);
+            border: 2px solid #4caf50;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .result h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        
+        .audio-player {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .download-btn {
+            width: 100%;
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .share-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 20px;
+            background: #f0f0f0;
+            color: #666;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #ff6b6b;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🐱</div>
+            <div class="title">뚱냥이</div>
+            <div class="subtitle">어디서든 노래하고, 바로 프로급 완성!</div>
+        </div>
+        
+        <div class="upload-section" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">🎵</div>
+            <div class="upload-text">노래 파일을 업로드하세요</div>
+            <div class="upload-hint">코인노래방, 집, 어디서든 녹음한 파일을 AI가 프로급으로!</div>
+            <input type="file" id="fileInput" class="file-input" accept="audio/*">
+        </div>
+        
+        <div class="settings">
+            <h3>🎛️ 간단 설정</h3>
+            <div class="setting-row">
+                <div class="setting-col">
+                    <select id="preset">
+                        <option value="auto">자동 (추천)</option>
+                        <option value="live">라이브 무대</option>
+                        <option value="karaoke">코인노래방</option>
+                        <option value="youtube">유튜브 업로드</option>
+                    </select>
+                </div>
+                <div class="setting-col">
+                    <select id="quality">
+                        <option value="high">고품질 (느림)</option>
+                        <option value="standard" selected>표준 (권장)</option>
+                        <option value="fast">빠름 (모바일)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <button class="process-btn" id="processBtn">🚀 AI 보정 시작!</button>
+        
+        <div class="progress" id="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">처리 중...</div>
+        </div>
+        
+        <div class="result" id="result">
+            <h3>🎉 AI 보정 완료!</h3>
+            <div>원본:</div>
+            <audio class="audio-player" id="originalAudio" controls></audio>
+            <div>보정 후:</div>
+            <audio class="audio-player" id="processedAudio" controls></audio>
+            <button class="download-btn" id="downloadBtn">📱 완성된 파일 저장</button>
+            <div class="share-buttons">
+                <button class="share-btn">🔗 카톡 공유</button>
+                <button class="share-btn">📱 인스타 스토리</button>
+                <button class="share-btn">🎵 유튜브 업로드</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            🐱 <strong>뚱냥이 v2.0</strong> - 어디서든 프로급 노래<br>
+            코인노래방 • 집 • 차에서 • 언제든지<br>
+            <em>Made with ❤️ for 노래 애호가들</em>
+        </div>
+    </div>
+    
+    <div class="install-prompt" id="installPrompt">📱 앱 설치</div>
+
+    <script>
+        // PWA 설치 프롬프트
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').style.display = 'block';
+        });
+        
+        document.getElementById('installPrompt').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    document.getElementById('installPrompt').style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
+        
+        // 파일 업로드 처리
+        const fileInput = document.getElementById('fileInput');
+        const processBtn = document.getElementById('processBtn');
+        const progress = document.getElementById('progress');
+        const result = document.getElementById('result');
+        const uploadSection = document.querySelector('.upload-section');
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                processBtn.style.display = 'block';
+                uploadSection.innerHTML = `
+                    <div class="upload-icon">✅</div>
+                    <div class="upload-text">${file.name}</div>
+                    <div class="upload-hint">준비 완료! 아래 버튼을 눌러 시작하세요</div>
+                `;
+            }
+        });
+        
+        // 드래그 앤 드롭
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+        
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+        
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                fileInput.dispatchEvent(new Event('change'));
+            }
+        });
+        
+        // AI 처리 시뮬레이션 (실제로는 서버 API 호출)
+        processBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            processBtn.disabled = true;
+            progress.style.display = 'block';
+            
+            // 시뮬레이션된 처리 과정
+            const steps = [
+                { progress: 20, text: '🧹 노이즈 제거 중...' },
+                { progress: 40, text: '🎛️ 음색 조정 중...' },
+                { progress: 60, text: '🎵 피치 보정 중...' },
+                { progress: 80, text: '🎚️ 다이나믹 조정 중...' },
+                { progress: 100, text: '✅ 완성!' }
+            ];
+            
+            for (let step of steps) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                document.getElementById('progressFill').style.width = step.progress + '%';
+                document.getElementById('progressText').textContent = step.text;
+            }
+            
+            // 결과 표시
+            setTimeout(() => {
+                progress.style.display = 'none';
+                result.style.display = 'block';
+                
+                // 원본 오디오 설정
+                const originalAudio = document.getElementById('originalAudio');
+                originalAudio.src = URL.createObjectURL(file);
+                
+                // 처리된 오디오 설정 (현재는 같은 파일, 실제로는 처리된 결과)
+                const processedAudio = document.getElementById('processedAudio');
+                processedAudio.src = URL.createObjectURL(file);
+                
+                processBtn.disabled = false;
+            }, 500);
+        });
+        
+        // 다운로드 기능
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = '뚱냥이_보정_' + fileInput.files[0].name;
+            link.href = document.getElementById('processedAudio').src;
+            link.click();
+        });
+        
+        // Service Worker 등록
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => console.log('SW registered'))
+                    .catch(error => console.log('SW registration failed'));
+            });
+        }
+    </script>
+</body>
+</html> 
