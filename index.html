@@ -418,6 +418,8 @@
         
         // 파일 선택 함수
         function selectFile() {
+            // 이전 값을 먼저 클리어
+            fileInput.value = '';
             fileInput.click();
         }
         
@@ -441,15 +443,22 @@
             processBtn.disabled = false;
         }
         
-        // 파일 업로드 처리
+        // 파일 업로드 처리 (개선된 버전)
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
+                console.log('새 파일 선택됨:', file.name); // 디버깅용
                 fileName.textContent = file.name;
                 uploadSection.style.display = 'none';
                 fileInfo.style.display = 'block';
                 processBtn.style.display = 'block';
                 result.style.display = 'none'; // 이전 결과 숨기기
+                progress.style.display = 'none'; // 이전 진행상태 숨기기
+                
+                // 버튼 상태 리셋
+                processBtn.disabled = false;
+                document.getElementById('progressFill').style.width = '0%';
+                document.getElementById('progressText').textContent = '처리 중...';
             }
         });
         
