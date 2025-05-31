@@ -490,36 +490,96 @@
             processBtn.disabled = true;
             progress.style.display = 'block';
             
-            // 시뮬레이션된 처리 과정
-            const steps = [
-                { progress: 20, text: '🧹 노이즈 제거 중...' },
-                { progress: 40, text: '🎛️ 음색 조정 중...' },
-                { progress: 60, text: '🎵 피치 보정 중...' },
-                { progress: 80, text: '🎚️ 다이나믹 조정 중...' },
-                { progress: 100, text: '✅ 완성!' }
-            ];
-            
-            for (let step of steps) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                document.getElementById('progressFill').style.width = step.progress + '%';
-                document.getElementById('progressText').textContent = step.text;
+            try {
+                // 실제 AI 처리
+                const formData = new FormData();
+                formData.append('audio_file', file);
+                formData.append('preset', document.getElementById('preset').value);
+                formData.append('quality', document.getElementById('quality').value);
+                
+                // 진행 상태 업데이트
+                document.getElementById('progressFill').style.width = '20%';
+                document.getElementById('progressText').textContent = '🧹 서버로 업로드 중...';
+                
+                // Streamlit 백엔드 호출 (로컬 테스트용)
+                const response = await fetch('http://localhost:8001/process', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('처리 중 오류가 발생했습니다.');
+                }
+                
+                // 실제 처리 진행상황 (시뮬레이션)
+                const steps = [
+                    { progress: 40, text: '🎛️ AI 음색 조정 중...' },
+                    { progress: 60, text: '🎵 피치 보정 중...' },
+                    { progress: 80, text: '🎚️ 다이나믹 조정 중...' },
+                    { progress: 100, text: '✅ 완성!' }
+                ];
+                
+                for (let step of steps) {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    document.getElementById('progressFill').style.width = step.progress + '%';
+                    document.getElementById('progressText').textContent = step.text;
+                }
+                
+                // 처리된 오디오 받기
+                const processedBlob = await response.blob();
+                const processedUrl = URL.createObjectURL(processedBlob);
+                
+                // 결과 표시
+                setTimeout(() => {
+                    progress.style.display = 'none';
+                    result.style.display = 'block';
+                    
+                    // 원본 오디오 설정
+                    const originalAudio = document.getElementById('originalAudio');
+                    originalAudio.src = URL.createObjectURL(file);
+                    
+                    // 처리된 오디오 설정 (실제 AI 결과)
+                    const processedAudio = document.getElementById('processedAudio');
+                    processedAudio.src = processedUrl;
+                    
+                    processBtn.disabled = false;
+                }, 500);
+                
+            } catch (error) {
+                console.error('처리 오류:', error);
+                
+                // 오류 시 기존 데모 실행
+                document.getElementById('progressText').textContent = '⚠️ 서버 연결 실패, 데모 모드로 실행...';
+                
+                const steps = [
+                    { progress: 40, text: '🎛️ 데모: 음색 조정...' },
+                    { progress: 60, text: '🎵 데모: 피치 보정...' },
+                    { progress: 80, text: '🎚️ 데모: 다이나믹 조정...' },
+                    { progress: 100, text: '✅ 데모 완성!' }
+                ];
+                
+                for (let step of steps) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    document.getElementById('progressFill').style.width = step.progress + '%';
+                    document.getElementById('progressText').textContent = step.text;
+                }
+                
+                // 데모 결과 표시
+                setTimeout(() => {
+                    progress.style.display = 'none';
+                    result.style.display = 'block';
+                    
+                    // 원본 오디오 설정
+                    const originalAudio = document.getElementById('originalAudio');
+                    originalAudio.src = URL.createObjectURL(file);
+                    
+                    // 처리된 오디오 설정 (현재는 같은 파일)
+                    const processedAudio = document.getElementById('processedAudio');
+                    processedAudio.src = URL.createObjectURL(file);
+                    
+                    processBtn.disabled = false;
+                }, 500);
             }
-            
-            // 결과 표시
-            setTimeout(() => {
-                progress.style.display = 'none';
-                result.style.display = 'block';
-                
-                // 원본 오디오 설정
-                const originalAudio = document.getElementById('originalAudio');
-                originalAudio.src = URL.createObjectURL(file);
-                
-                // 처리된 오디오 설정 (현재는 같은 파일, 실제로는 처리된 결과)
-                const processedAudio = document.getElementById('processedAudio');
-                processedAudio.src = URL.createObjectURL(file);
-                
-                processBtn.disabled = false;
-            }, 500);
         });
         
         // 다운로드 기능
